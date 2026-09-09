@@ -1,42 +1,60 @@
 """
-CodePilot Problem Service in Python
+CodePilot Problem Service
+Provides access to problem catalogs, test cases, submission histories,
+and difficulty/category filtering.
 """
 
-from typing import List, Optional, Dict
-from codepilot.models.problem import Problem, Difficulty
+from codepilot.db.connection import db_session
+from codepilot.db.models import Problem, TestCase, Submission
 
-class ProblemServicePython:
-    def __init__(self):
-        self.problems: List[Problem] = [
-            Problem(
-                id="prob_1",
-                title="Two Sum (Python Solution)",
-                difficulty=Difficulty.EASY,
-                category="Algorithms",
-                topic="Array & Hash Map",
-                acceptance_rate="49.2%",
-                solved_count=12450,
-                likes=8520,
-                description="Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-                examples=[{"input": "nums = [2,7,11,15], target = 9", "output": "[0,1]"}],
-                constraints=["2 <= nums.length <= 10^4"],
-                hints=["Use a dictionary to check complement in O(1) time."],
-                starter_code={"python": "def two_sum(nums, target):\n    pass"}
-            )
-        ]
 
-    def get_all(self, difficulty: Optional[str] = None, topic: Optional[str] = None, search: Optional[str] = None) -> List[Problem]:
-        results = self.problems
+class ProblemService:
+    @staticmethod
+    def get_all_problems(difficulty: str = None, category: str = None, search: str = None) -> list[dict]:
+        db = db_session()
+        query = db.query(Problem)
         if difficulty:
-            results = [p for p in results if p.difficulty.value.lower() == difficulty.lower()]
-        if topic:
-            results = [p for p in results if topic.lower() in p.topic.lower()]
+            query = query.filter_by(difficulty=difficulty)
+        if category:
+            query = query.filter_by(category=category)
         if search:
-            results = [p for p in results if search.lower() in p.title.lower() or search.lower() in p.description.lower()]
-        return results
+            query = query.filter(
+                (Problem.title.ilike(f"%{search}%")) |
+                (Problem.description.ilike(f"%{search}%"))
+            )
+        problems = query.order_by(Problem.id.asc()).all()
+        return [p.to_dict(include_test_cases=False) for p in problems]
 
-    def get_by_id(self, problem_id: str) -> Optional[Problem]:
-        for p in self.problems:
-            if p.id == problem_id:
-                return p
-        return None
+    @staticmethod
+    def get_problem_by_id(problem_id: int, include_hidden_tests: bool = False) -> dict | None:
+        db = db_session()
+        problem = db.query(Problem).filter_by(id=problem_id).first()
+        if not problem:
+            return None
+        return problem.to_dict(include_test_cases=True, include_hidden=include_hidden_tests)
+
+    @staticmethod
+    def get_problem_by_slug(slug: str, include_hidden_tests: bool = False) -> dict | None:
+        db = db_session()
+        problem = db.query(Problem).filter_by(slug=slug).first()
+        if not problem:
+            return None
+        return problem.to_dict(include_test_cases=True, include_hidden=include_hidden_tests)
+
+    @staticmethod
+    def get_user_submissions(user_id: int, problem_id: int = None, page: int = 1, page_size: int = 20) -> dict:
+        db = db_session()
+        query = db.query(Submission).filter_by(user_id=user_id)
+        if problem_id:
+            query = query.filter_by(problem_id=problem_id)
+
+        total = query.count()
+        submissions = query.order_by(Submission.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+
+        return {
+            "total": total,
+            "page": page,
+            "pageSize": page_size,
+            "totalPages": (total + page_size - 1) // page_size if total > 0 else 1,
+            "items": [s.to_dict() for s in submissions]
+        }
