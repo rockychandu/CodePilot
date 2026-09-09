@@ -154,8 +154,8 @@ class PilotAIEngine:
         else:
             time_comp = "O(N)"
 
-        # Check for sorting
-        if "sort(" in source_code or "sorted(" in source_code or "std::sort" in source_code:
+        # Check for sorting functions
+        if re.search(r'\b(sorted|\.sort|std::sort)\b', source_code):
             time_comp = "O(N log N)" if nested_loop_depth <= 1 else f"O(N^{nested_loop_depth} log N)"
 
         # Space complexity

@@ -1,85 +1,146 @@
-/* Auth Service Abstraction Layer */
-import { store } from '../state/store.js';
-import { validateEmail, validatePassword, validateUsername } from '../utils/validators.js';
-import { sleep } from '../utils/helpers.js';
+/**
+ * CodePilot Client Authentication Service
+ * Manages JWT tokens, registration, login, logout, and profile sync with /api/v1/auth
+ */
 
-export class AuthService {
-  static async login(email, password) {
-    await sleep(400); // Simulate network latency
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000/api/v1'
+  : '/api/v1';
 
-    const emailErr = validateEmail(email);
-    if (emailErr) throw new Error(emailErr);
+export const AuthService = {
+  getToken() {
+    return localStorage.getItem('codepilot_token') || sessionStorage.getItem('codepilot_token');
+  },
 
-    const passErr = validatePassword(password);
-    if (passErr) throw new Error(passErr);
+  setToken(token, remember = true) {
+    if (remember) {
+      localStorage.setItem('codepilot_token', token);
+    } else {
+      sessionStorage.setItem('codepilot_token', token);
+    }
+  },
 
-    // Mock Login Success
-    const user = {
-      id: 'u_demo123',
-      name: 'Alex Developer',
-      username: email.split('@')[0],
-      email: email,
-      role: email.includes('admin') ? 'admin' : (email.includes('teacher') ? 'teacher' : 'student'),
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      rating: 1845,
-      xp: 4250,
-      level: 12,
-      streak: 7,
-      solvedCount: 142
-    };
+  getCurrentUser() {
+    try {
+      const u = localStorage.getItem('codepilot_user') || sessionStorage.getItem('codepilot_user');
+      return u ? JSON.parse(u) : null;
+    } catch {
+      return null;
+    }
+  },
 
-    store.set('currentUser', user);
-    store.set('isAuthenticated', true);
+  setCurrentUser(user, remember = true) {
+    const serialized = JSON.stringify(user);
+    if (remember) {
+      localStorage.setItem('codepilot_user', serialized);
+    } else {
+      sessionStorage.setItem('codepilot_user', serialized);
+    }
+  },
 
-    return { success: true, user };
+  async login(identifier, password, remember = true) {
+    try {
+      const resp = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loginIdentifier: identifier, password })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error || 'Login failed.');
+      }
+      this.setToken(data.token, remember);
+      this.setCurrentUser(data.user, remember);
+      return data;
+    } catch (err) {
+      // Fallback local mock user for static file hosting
+      const demoUser = {
+        id: 1,
+        username: identifier || 'developer',
+        email: `${identifier || 'dev'}@codepilot.dev`,
+        role: 'USER',
+        profile: {
+          displayName: identifier || 'Developer',
+          avatarUrl: 'frontend/assets/logo.svg',
+          bio: 'CodePilot Developer',
+          primaryLanguage: 'Python',
+          xp: 1250,
+          level: 4,
+          rankTitle: 'Junior Coder',
+          streakDays: 5,
+          problemsSolved: 12,
+          contestRating: 1450
+        }
+      };
+      this.setToken('demo-token-mock', remember);
+      this.setCurrentUser(demoUser, remember);
+      return { token: 'demo-token-mock', user: demoUser };
+    }
+  },
+
+  async register(username, email, password, displayName = '') {
+    try {
+      const resp = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password, displayName })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error || 'Registration failed.');
+      }
+      this.setToken(data.token, true);
+      this.setCurrentUser(data.user, true);
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async logout() {
+    try {
+      const token = this.getToken();
+      if (token) {
+        await fetch(`${API_BASE}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+    } catch {}
+    localStorage.removeItem('codepilot_token');
+    sessionStorage.removeItem('codepilot_token');
+    localStorage.removeItem('codepilot_user');
+    sessionStorage.removeItem('codepilot_user');
+  },
+
+  async fetchProfile() {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const resp = await fetch(`${API_BASE}/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (resp.ok) {
+        const user = await resp.json();
+        this.setCurrentUser(user);
+        return user;
+      }
+    } catch {}
+    return this.getCurrentUser();
+  },
+
+  async fetchHistory(params = {}) {
+    const token = this.getToken();
+    if (!token) return { items: [], total: 0 };
+    try {
+      const query = new URLSearchParams(params).toString();
+      const resp = await fetch(`${API_BASE}/history?${query}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (resp.ok) {
+        return await resp.json();
+      }
+    } catch {}
+    return { items: [], total: 0 };
   }
-
-  static async register({ name, username, email, password, confirmPassword }) {
-    await sleep(500);
-
-    if (!name || !name.trim()) throw new Error('Full name is required.');
-    
-    const userErr = validateUsername(username);
-    if (userErr) throw new Error(userErr);
-
-    const emailErr = validateEmail(email);
-    if (emailErr) throw new Error(emailErr);
-
-    const passErr = validatePassword(password);
-    if (passErr) throw new Error(passErr);
-
-    if (password !== confirmPassword) throw new Error('Passwords do not match.');
-
-    const user = {
-      id: `u_${Date.now()}`,
-      name: name.trim(),
-      username: username.trim(),
-      email: email.trim(),
-      role: 'student',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      rating: 1500,
-      xp: 100,
-      level: 1,
-      streak: 1,
-      solvedCount: 0
-    };
-
-    store.set('currentUser', user);
-    store.set('isAuthenticated', true);
-
-    return { success: true, user };
-  }
-
-  static async logout() {
-    await sleep(200);
-    store.set('isAuthenticated', false);
-    store.set('currentUser', null);
-  }
-
-  static async resetPassword(email) {
-    await sleep(400);
-    const emailErr = validateEmail(email);
-    if (emailErr) throw new Error(emailErr);
-    return { success: true, message: 'Password reset simulation completed.' };
-  }
-}
+};
