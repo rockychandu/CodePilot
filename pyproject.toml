@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
     { name = "CodePilot Engineering Team", email = "engineering@codepilot.dev" }
 ]
-license = { text = "MIT" }
+license = { text = "Proprietary - All Rights Reserved" }
 requires-python = ">=3.10"
 dependencies = [
     "flask>=3.0.0",

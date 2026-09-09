@@ -21,7 +21,7 @@
     "learning-platform"
   ],
   "author": "CodePilot Engineering Team",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "devDependencies": {
     "vite": "^5.4.2",
     "eslint": "^8.57.0"

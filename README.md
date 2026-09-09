@@ -1,7 +1,6 @@
 # CodePilot — Enterprise Developer Platform & Cloud Execution Engine
 
 [![CI/CD Pipeline](https://github.com/codepilot/codepilot/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
 [![Node Version](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](package.json)
 [![Build: Vite](https://img.shields.io/badge/Build-Vite%205-646CFF.svg?logo=vite&logoColor=white)](package.json)
@@ -146,6 +145,13 @@ npm run build
 
 ---
 
-## 📄 License & Contributing
-Licensed under the [MIT License](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+## License
+
+CodePilot is proprietary software.
+
+Copyright © 2026 CodePilot. All rights reserved.
+
+Unauthorized copying, modification, distribution, or commercial use is prohibited without written permission from the copyright owner.
+
+For licensing inquiries, contact the project owner.
 
