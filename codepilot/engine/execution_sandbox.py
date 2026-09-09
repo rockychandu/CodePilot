@@ -270,6 +270,18 @@ class ExecutionSandbox:
             }
 
         except subprocess.TimeoutExpired:
+            if 'proc' in locals() and proc:
+                try:
+                    proc.kill()
+                    proc.communicate()
+                except Exception:
+                    pass
+            if 'r_proc' in locals() and r_proc:
+                try:
+                    r_proc.kill()
+                    r_proc.communicate()
+                except Exception:
+                    pass
             return {
                 "status": "TIME_LIMIT_EXCEEDED",
                 "stdout": "",

@@ -10,6 +10,7 @@ import hashlib
 import base64
 import json
 import time
+import uuid
 from datetime import datetime, timezone, timedelta
 
 SECRET_KEY = os.environ.get("CODEPILOT_SECRET_KEY", "codepilot-super-secret-jwt-key-2026-production")
@@ -48,7 +49,7 @@ def _base64url_decode(data_str: str) -> bytes:
 
 
 def create_access_token(user_id: int, username: str, role: str = "USER", expires_delta: timedelta = None) -> str:
-    """Create signed JWT access token."""
+    """Create signed JWT access token with unique jti identifier."""
     header = {"alg": "HS256", "typ": "JWT"}
     now = int(time.time())
     if expires_delta:
@@ -57,6 +58,7 @@ def create_access_token(user_id: int, username: str, role: str = "USER", expires
         exp = now + (ACCESS_TOKEN_EXPIRE_MINUTES * 60)
 
     payload = {
+        "jti": uuid.uuid4().hex,
         "sub": str(user_id),
         "user_id": user_id,
         "username": username,
