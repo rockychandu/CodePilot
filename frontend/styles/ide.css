@@ -1,0 +1,295 @@
+/* IDE & Terminal Specialized Styles */
+
+.ide-workspace {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height));
+  background: var(--bg-darkest);
+  overflow: hidden;
+}
+
+.ide-toolbar {
+  height: 42px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+}
+
+.ide-toolbar-left, .ide-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ide-main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* File Explorer Sidebar */
+.ide-sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.ide-sidebar-header {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.file-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+  list-style: none;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background var(--transition-fast);
+}
+
+.file-item:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.file-item.active {
+  background: var(--bg-surface-hover);
+  color: var(--accent-cyan);
+  border-left-color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+/* Editor Center Area */
+.ide-editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-darkest);
+  overflow: hidden;
+}
+
+.editor-tabs {
+  display: flex;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.editor-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg-darkest);
+  border-right: 1px solid var(--border-subtle);
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-tab.active {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border-top: 2px solid var(--accent-cyan);
+}
+
+.editor-tab .close-btn {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 1px 4px;
+}
+
+.editor-tab .close-btn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+/* Code Mirror / Monaco Mock Canvas Area */
+.code-editor-wrapper {
+  flex: 1;
+  display: flex;
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  background: var(--bg-darkest);
+  overflow: auto;
+}
+
+.line-numbers {
+  padding: var(--space-3) var(--space-3);
+  text-align: right;
+  color: var(--text-muted);
+  user-select: none;
+  background: rgba(3, 7, 18, 0.4);
+  border-right: 1px solid var(--border-subtle);
+  font-size: 0.825rem;
+}
+
+.code-textarea {
+  flex: 1;
+  padding: var(--space-3);
+  background: transparent;
+  color: #E2E8F0;
+  resize: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  white-space: pre;
+  tab-size: 4;
+}
+
+.editor-minimap {
+  width: 90px;
+  background: rgba(17, 24, 39, 0.5);
+  border-left: 1px solid var(--border-subtle);
+  padding: var(--space-2);
+  font-size: 4px;
+  line-height: 5px;
+  color: var(--text-muted);
+  overflow: hidden;
+  user-select: none;
+  opacity: 0.7;
+}
+
+/* Bottom Console & Execution Panel */
+.ide-console-panel {
+  height: 240px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+}
+
+.console-header {
+  height: 36px;
+  background: var(--bg-darkest);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+}
+
+.console-body {
+  flex: 1;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  overflow-y: auto;
+  background: #020617;
+}
+
+.output-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+}
+
+.status-accepted { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+.status-running { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
+.status-error { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+
+/* Interactive Terminal Emulator */
+.terminal-window {
+  background: #030712;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-mono);
+}
+
+.terminal-titlebar {
+  background: var(--bg-surface);
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot-red { background: #EF4444; }
+.dot-yellow { background: #F59E0B; }
+.dot-green { background: #10B981; }
+
+.terminal-content {
+  padding: var(--space-4);
+  height: 400px;
+  overflow-y: auto;
+  color: #F3F4F6;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.terminal-line {
+  margin-bottom: var(--space-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.terminal-prompt {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  margin-right: var(--space-2);
+}
+
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  color: #F8FAFC;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  border: none;
+  outline: none;
+}

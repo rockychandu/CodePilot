@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CodePilot — Write, Compile, and Run Python, C, C++, Java, JavaScript, R, and SQL." />
+  <title>CodePilot</title>
+  
+  <link rel="icon" type="image/svg+xml" href="frontend/assets/logo.svg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Core Stylesheets -->
+  <link rel="stylesheet" href="frontend/styles/tokens.css" />
+  <link rel="stylesheet" href="frontend/styles/base.css" />
+  <link rel="stylesheet" href="frontend/styles/components.css" />
+  <link rel="stylesheet" href="frontend/styles/ide.css" />
+  <link rel="stylesheet" href="frontend/styles/landing.css" />
+  <link rel="stylesheet" href="frontend/styles/pages.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Navbar Container -->
+    <div id="navbar-container"></div>
+
+    <!-- Main Dynamic View Container -->
+    <main id="app-content" style="flex: 1;"></main>
+
+    <!-- Global Command Palette Modal Container -->
+    <div id="command-palette-holder"></div>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+  </div>
+
+  <!-- Standalone Application Script (Compatible with http:// and file://) -->
+  <script src="frontend/app.js"></script>
+</body>
+</html>

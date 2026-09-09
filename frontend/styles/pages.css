@@ -1,0 +1,226 @@
+/* Dashboard, Learning, AI, Analytics, Contests & Admin Pages CSS */
+
+.page-wrapper {
+  padding: var(--space-8) var(--space-6);
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: var(--space-8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Stat Widget Cards */
+.stat-widget {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.stat-widget-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-2xl);
+}
+
+.icon-blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
+.icon-purple { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; }
+.icon-emerald { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+.icon-amber { background: rgba(245, 158, 11, 0.12); color: #F59E0B; }
+
+/* Activity Heatmap Grid */
+.heatmap-container {
+  display: grid;
+  grid-template-columns: repeat(52, 1fr);
+  gap: 3px;
+  padding: var(--space-4);
+  background: var(--bg-darkest);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.heatmap-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--bg-surface);
+}
+
+.heatmap-level-1 { background: #0E4429; }
+.heatmap-level-2 { background: #006D32; }
+.heatmap-level-3 { background: #26A641; }
+.heatmap-level-4 { background: #39D353; }
+
+/* Interactive SVG Skill Tree */
+.skill-tree-canvas {
+  width: 100%;
+  height: 500px;
+  background: var(--bg-darkest);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  position: relative;
+}
+
+.skill-node {
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.skill-node:hover {
+  transform: scale(1.1);
+}
+
+/* Video Player Component */
+.video-player-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.video-player-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FFF;
+}
+
+/* PDF Viewer Component */
+.pdf-viewer-layout {
+  display: flex;
+  height: 650px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.pdf-sidebar {
+  width: 240px;
+  background: var(--bg-darkest);
+  border-right: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+
+.pdf-viewport {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-y: auto;
+  background: #1E293B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pdf-page-canvas {
+  background: #FFF;
+  color: #0F172A;
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  min-height: 500px;
+  width: 100%;
+  max-width: 650px;
+  border-radius: var(--radius-sm);
+  font-family: serif;
+}
+
+/* Pilot AI Assistant Drawer & Full View */
+.ai-chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.ai-chat-messages {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.chat-bubble-user {
+  align-self: flex-end;
+  background: var(--accent-blue);
+  color: #FFF;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-bubble-ai {
+  align-self: flex-start;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  border-bottom-left-radius: 2px;
+}
+
+/* Global Search Command Palette (Ctrl+K) */
+.command-palette-container {
+  max-width: 640px;
+  margin: 10vh auto;
+}
+
+.command-input {
+  width: 100%;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--fs-lg);
+  background: var(--bg-surface);
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.command-results {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.command-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.command-item:hover, .command-item.active {
+  background: var(--bg-surface-hover);
+  color: var(--accent-cyan);
+}
