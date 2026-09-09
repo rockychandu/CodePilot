@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codepilot"
+version = "2.1.0"
+description = "CodePilot — High-Performance Cloud Execution, Competitive Judge & Developer Platform"
+readme = "README.md"
+authors = [
+    { name = "CodePilot Engineering Team", email = "engineering@codepilot.dev" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "requests>=2.31.0",
+    "pydantic>=2.6.0",
+    "cryptography>=42.0.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "flake8>=7.0.0",
+    "black>=24.2.0",
+    "mypy>=1.8.0",
+]
+
+[project.scripts]
+codepilot = "codepilot.cli:main"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --durations=10"
+testpaths = [
+    "tests",
+]
+python_files = ["test_*.py"]

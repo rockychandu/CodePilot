@@ -1,89 +1,206 @@
-/**
- * CodePilot Persistent User History Page Component
- * Displays filtered, paginated user activity records (executions, submissions, AI reviews, logins)
- */
+/* Persistent Developer Activity History Page */
+import { AuthService } from '../services/AuthService.js';
+import { NotificationService } from '../services/NotificationService.js';
 
-export function renderHistoryPage() {
-  return `
-    <div class="container" style="padding: 2.5rem 1.5rem; max-width: 1200px; margin: 0 auto;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">
-            📜 Persistent User History
-          </h1>
-          <p style="color: var(--text-secondary); font-size: 0.95rem;">
-            Chronological audit trail of your code executions, contest submissions, AI reviews, and learning progression.
-          </p>
+export class HistoryPage {
+  static currentPage = 1;
+  static pageSize = 20;
+
+  static async render() {
+    return `
+      <div class="page-wrapper">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Developer Activity Timeline</h1>
+            <p class="page-description">Persistent audit trail of code executions, submissions, AI reviews, and course milestones.</p>
+          </div>
+          <button id="history-refresh-btn" class="btn btn-secondary btn-sm">🔄 Refresh Activity</button>
         </div>
-        <button class="btn btn-secondary" id="history-refresh-btn" style="display: flex; align-items: center; gap: 0.5rem;">
-          🔄 Refresh Activity
-        </button>
-      </div>
 
-      <!-- Filter Controls Bar -->
-      <div class="card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-        <div style="flex: 1; min-width: 200px;">
-          <input type="text" id="history-search-input" class="input" placeholder="Search activity title, details..." style="width: 100%; padding: 0.6rem 1rem; background: var(--surface-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm);" />
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <input type="text" id="history-search-input" class="filter-search-input" placeholder="Search activity description, problem name..." />
+          
+          <select id="history-type-filter" class="filter-select">
+            <option value="">All Activity Types</option>
+            <option value="EXECUTION">Code Executions</option>
+            <option value="SUBMISSION">Submissions</option>
+            <option value="AI_REVIEW">Pilot AI Reviews</option>
+            <option value="COURSE">Course Lessons</option>
+            <option value="PROJECT">Projects</option>
+          </select>
+
+          <select id="history-lang-filter" class="filter-select">
+            <option value="">All Languages</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">C++</option>
+            <option value="c">C</option>
+            <option value="java">Java</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+          </select>
+
+          <select id="history-status-filter" class="filter-select">
+            <option value="">All Statuses</option>
+            <option value="ACCEPTED">Accepted / Passed</option>
+            <option value="Wrong Answer">Wrong Answer</option>
+            <option value="COMPILE_ERROR">Compilation Error</option>
+            <option value="RUNTIME_ERROR">Runtime Error</option>
+            <option value="TIME_LIMIT_EXCEEDED">Time Limit Exceeded</option>
+          </select>
         </div>
-        <select id="history-type-filter" class="select" style="padding: 0.6rem 1rem; background: var(--surface-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
-          <option value="">All Activity Types</option>
-          <option value="EXECUTION">Code Executions</option>
-          <option value="SUBMISSION">Problem Submissions</option>
-          <option value="AI_REVIEW">Pilot AI Reviews</option>
-          <option value="COURSE">Course Lessons</option>
-          <option value="LOGIN">Account Logins</option>
-        </select>
-        <select id="history-lang-filter" class="select" style="padding: 0.6rem 1rem; background: var(--surface-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
-          <option value="">All Languages</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="cpp">C++</option>
-          <option value="c">C</option>
-          <option value="java">Java</option>
-          <option value="go">Go</option>
-          <option value="rust">Rust</option>
-        </select>
-        <select id="history-status-filter" class="select" style="padding: 0.6rem 1rem; background: var(--surface-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
-          <option value="">All Statuses</option>
-          <option value="ACCEPTED">Accepted / Passed</option>
-          <option value="Wrong Answer">Wrong Answer</option>
-          <option value="COMPILE_ERROR">Compilation Error</option>
-          <option value="RUNTIME_ERROR">Runtime Error</option>
-          <option value="TIME_LIMIT_EXCEEDED">Time Limit Exceeded</option>
-        </select>
-      </div>
 
-      <!-- History Table Container -->
-      <div class="card" style="overflow-x: auto; background: var(--surface-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-          <thead>
-            <tr style="border-bottom: 1px solid var(--border-color); background: var(--surface-secondary); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">
-              <th style="padding: 1rem 1.25rem;">Event / Title</th>
-              <th style="padding: 1rem 1.25rem;">Type</th>
-              <th style="padding: 1rem 1.25rem;">Language</th>
-              <th style="padding: 1rem 1.25rem;">Verdict / Status</th>
-              <th style="padding: 1rem 1.25rem;">Timestamp</th>
-              <th style="padding: 1rem 1.25rem; text-align: right;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="history-table-body">
+        <!-- History Table -->
+        <div class="table-container" style="margin-bottom: var(--space-4);">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Activity Event</th>
+                <th>Type</th>
+                <th>Language</th>
+                <th>Status / Result</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: var(--space-6); color: var(--text-muted);">
+                  Loading activity timeline...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center" style="font-size: var(--fs-xs); color: var(--text-secondary);">
+          <span id="history-page-info">Showing page 1</span>
+          <div class="flex gap-2">
+            <button id="history-prev-btn" class="btn btn-secondary btn-sm" disabled>← Previous</button>
+            <button id="history-next-btn" class="btn btn-secondary btn-sm" disabled>Next →</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  static async afterRender() {
+    const loadData = async () => {
+      const search = document.getElementById('history-search-input')?.value || '';
+      const actType = document.getElementById('history-type-filter')?.value || '';
+      const lang = document.getElementById('history-lang-filter')?.value || '';
+      const status = document.getElementById('history-status-filter')?.value || '';
+
+      const tbody = document.getElementById('history-table-body');
+      if (!tbody) return;
+
+      const data = await AuthService.fetchHistory({
+        page: HistoryPage.currentPage,
+        pageSize: HistoryPage.pageSize,
+        activityType: actType,
+        language: lang,
+        status: status,
+        search: search
+      });
+
+      const activities = data.activities || data.items || [];
+      const total = data.total || activities.length;
+
+      if (activities.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: var(--space-8); color: var(--text-muted);">
+              No activity records found matching filters.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = activities.map(act => {
+          const dateStr = act.createdAt ? new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today';
+          const isAccepted = act.status === 'ACCEPTED' || act.status === 'Accepted' || act.status === 'SUCCESS';
+
+          return `
             <tr>
-              <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-tertiary);">
-                Loading persistent activity records...
+              <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${dateStr}</td>
+              <td>
+                <div style="font-weight: 500; color: var(--text-primary);">${act.title || 'Code Execution'}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${act.description || ''}</div>
+              </td>
+              <td>
+                <span class="badge-tag" style="background: var(--bg-darkest);">${act.activityType || 'EXEC'}</span>
+              </td>
+              <td>
+                ${act.language ? `<span class="history-lang-badge">${act.language.toUpperCase()}</span>` : '<span style="color: var(--text-disabled);">-</span>'}
+              </td>
+              <td>
+                ${act.status ? `
+                  <span class="output-status-pill ${isAccepted ? 'status-accepted' : 'status-error'}">
+                    ${act.status}
+                  </span>
+                ` : '<span style="color: var(--text-disabled);">-</span>'}
+              </td>
+              <td style="text-align: right;">
+                <a href="#/ide?lang=${(act.language || 'python').toLowerCase()}" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 2px 6px;">Open IDE</a>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+          `;
+        }).join('');
+      }
 
-      <!-- Pagination Container -->
-      <div id="history-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
-        <span id="history-page-info">Showing 0 of 0 entries</span>
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="btn btn-secondary btn-sm" id="history-prev-btn" disabled>← Previous</button>
-          <button class="btn btn-secondary btn-sm" id="history-next-btn" disabled>Next →</button>
-        </div>
-      </div>
-    </div>
-  `;
+      const pageInfo = document.getElementById('history-page-info');
+      if (pageInfo) {
+        pageInfo.textContent = `Showing ${(HistoryPage.currentPage - 1) * HistoryPage.pageSize + 1} - ${Math.min(HistoryPage.currentPage * HistoryPage.pageSize, total)} of ${total} entries`;
+      }
+
+      const prevBtn = document.getElementById('history-prev-btn');
+      const nextBtn = document.getElementById('history-next-btn');
+      if (prevBtn) prevBtn.disabled = HistoryPage.currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = HistoryPage.currentPage * HistoryPage.pageSize >= total;
+    };
+
+    // Attach filter listeners
+    ['history-search-input', 'history-type-filter', 'history-lang-filter', 'history-status-filter'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          HistoryPage.currentPage = 1;
+          loadData();
+        });
+        el.addEventListener('change', () => {
+          HistoryPage.currentPage = 1;
+          loadData();
+        });
+      }
+    });
+
+    const refreshBtn = document.getElementById('history-refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        loadData();
+        NotificationService.showToast('Activity timeline refreshed', 'info');
+      });
+    }
+
+    const prevBtn = document.getElementById('history-prev-btn');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (HistoryPage.currentPage > 1) {
+          HistoryPage.currentPage--;
+          loadData();
+        }
+      });
+    }
+
+    const nextBtn = document.getElementById('history-next-btn');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        HistoryPage.currentPage++;
+        loadData();
+      });
+    }
+
+    loadData();
+  }
 }

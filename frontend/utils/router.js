@@ -1,10 +1,36 @@
-/* Hash-based Single Page Application Router */
+/* Hash-based Single Page Application Router with Navigation Guards */
+import { AuthService } from '../services/AuthService.js';
+import { store } from '../state/store.js';
 
 export class Router {
   constructor(routes = {}, appContainerId = 'app-content') {
     this.routes = routes;
     this.containerId = appContainerId;
     this.currentPath = '';
+
+    // Protected routes requiring authentication
+    this.protectedRoutes = new Set([
+      '/dashboard',
+      '/ide',
+      '/problems',
+      '/contests',
+      '/courses',
+      '/learning',
+      '/projects',
+      '/history',
+      '/profile',
+      '/settings',
+      '/admin',
+      '/diagnostics',
+      '/runtime-diagnostics',
+      '/ai'
+    ]);
+
+    // Guest routes (redirect to dashboard if already authenticated)
+    this.guestRoutes = new Set([
+      '/login',
+      '/register'
+    ]);
 
     window.addEventListener('hashchange', () => this.handleRoute());
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -39,6 +65,14 @@ export class Router {
       if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
     });
     return params;
+  }
+
+  isRouteProtected(path) {
+    if (this.protectedRoutes.has(path)) return true;
+    for (const p of this.protectedRoutes) {
+      if (path.startsWith(`${p}/`)) return true;
+    }
+    return false;
   }
 
   matchRoute(currentPath) {
@@ -83,6 +117,40 @@ export class Router {
     const container = document.getElementById(this.containerId);
 
     if (!container) return;
+
+    // Check Authentication Guard
+    const isAuth = AuthService.isAuthenticated();
+    const currentUser = AuthService.getCurrentUser();
+
+    // 1. Redirect unauthenticated users from protected routes
+    if (this.isRouteProtected(path) && !isAuth) {
+      this.navigate(`/login?redirect=${encodeURIComponent(path)}`);
+      return;
+    }
+
+    // 2. Redirect authenticated users away from guest pages (login/register)
+    if (this.guestRoutes.has(path) && isAuth) {
+      this.navigate('/dashboard');
+      return;
+    }
+
+    // 3. Check Admin Role Guard
+    if (path.startsWith('/admin')) {
+      const userRole = currentUser?.role || '';
+      if (!userRole.includes('ADMIN')) {
+        container.innerHTML = `
+          <div class="page-wrapper text-center" style="padding: 5rem 1rem;">
+            <h1 style="font-size: 4rem; color: #f87171;">403</h1>
+            <h2 style="margin-bottom: 1rem;">Access Denied</h2>
+            <p class="text-secondary" style="max-width: 500px; margin: 0 auto 2rem auto;">
+              You do not have administrative privileges to view this portal.
+            </p>
+            <a href="#/dashboard" class="btn btn-primary">Return to Dashboard</a>
+          </div>
+        `;
+        return;
+      }
+    }
 
     // Scroll to top
     window.scrollTo(0, 0);
