@@ -1,43 +1,151 @@
-# CodePilot — Code. Learn. Build. Compete.
+# CodePilot — Enterprise Developer Platform & Cloud Execution Engine
 
-CodePilot is a commercial-grade, Python-driven developer platform combining online IDE capabilities, algorithmic problem challenges, live coding contests, video/PDF learning courses, Pilot AI assistant, and project workspaces.
+[![CI/CD Pipeline](https://github.com/codepilot/codepilot/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](pyproject.toml)
+[![Node Version](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](package.json)
+[![Build: Vite](https://img.shields.io/badge/Build-Vite%205-646CFF.svg?logo=vite&logoColor=white)](package.json)
 
-![CodePilot Logo](frontend/assets/logo.svg)
+**CodePilot** is an enterprise-grade cloud developer platform providing an authentic, restrained developer IDE, isolated multi-language code execution engine, competitive programming judge with hidden test verification, live contests, interactive learning academy, Pilot AI engineering assistant, and persistent activity history.
 
-## Features
+---
 
-- 💻 **VS Code-Grade Online IDE**: Multi-file tab manager, line numbers, syntax highlighting, minimap preview, and code execution simulator.
-- 🐍 **Major Python Architecture (`codepilot/`)**: Pure Python engine core with AST syntax validator (`sandbox.py`), PEP8 linter & AI code reviewer (`ai_assistant.py`), Python models (`problem.py`, `user.py`), and CLI tool (`cli.py`).
-- ⚡ **Pilot AI Assistant**: AI-driven code reviews, complexity breakdown, and experiment tracking.
-- 🏆 **Contests & Leaderboards**: Biweekly contests, live countdown timer, penalty evaluation, and global ranking grids.
-- 📖 **Developer Learning Center**: Video player UI with chapter markers and custom PDF document reader UI.
-- 📊 **365-Day Activity Heatmap & Skill Tree**: Visual contribution heatmaps and interactive SVG node skill trees.
-- 🧪 **Automated Test Suite**: Python `unittest` suite (7 tests) and in-browser automated unit test runner.
+## 🏗 System Architecture
 
-## Getting Started
+The platform is structured into decoupled, production-ready modules:
 
-### 1. View Frontend Web Application
-Simply open `index.html` in your web browser, or launch a local static HTTP server:
-```bash
-python -m http.server 8000
 ```
-Then navigate to `http://localhost:8000`.
-
-### 2. Run Python CLI Tool
-Execute commands via Python:
-```bash
-python -m codepilot list
-python -m codepilot run solution.py
-python -m codepilot review solution.py
+CodePilot/
+├── backend/                  # Flask REST API v1 Architecture
+│   ├── api/                  # Blueprint routers (/api/v1/auth, execution, problems, contests, etc.)
+│   ├── auth/                 # Authentication service & token lifecycle
+│   ├── execution/            # Isolated process execution engine & limit enforcement
+│   ├── runtime/              # Multi-language host runtime registry & diagnostics
+│   ├── problems/             # Problem catalog & metadata
+│   ├── submissions/          # Multi-case competitive judge pipeline
+│   ├── contests/             # Contest lifecycle & live leaderboards
+│   ├── courses/              # Curriculum & course hierarchy
+│   ├── projects/             # Workspace projects & file tree operations
+│   ├── ai/                   # Pilot AI AST code reviewer & test synthesizer
+│   ├── history/              # Chronological user activity audit trail
+│   ├── search/               # Multi-entity global search engine
+│   ├── analytics/            # Telemetry & system observability
+│   ├── security/             # PBKDF2 hashing, JWT HMAC tokens, sliding-window rate limiter
+│   ├── repositories/         # Clean ORM data access repositories
+│   └── app.py                # Server entrypoint with auto-seeding & middleware
+├── frontend/                 # High-Density Developer SPA UI
+│   ├── main.js               # SPA entrypoint & hash-based router
+│   ├── components/           # Reusable components (IDE, Navbar, Search, Modals, Terminal)
+│   ├── pages/                # Views (Dashboard, IDE, Problems, Contests, History, Admin)
+│   ├── services/             # Client API service adapters (Auth, Execution, Problem, etc.)
+│   └── styles/               # Developer design system tokens, base, components, and pages
+├── codepilot/                # Core Python Platform Library & CLI
+│   ├── db/                   # SQLAlchemy ORM models, migrations, & database seeds
+│   ├── engine/               # Execution sandbox & runtime detectors
+│   └── cli.py                # Developer CLI utility
+├── scripts/                  # Unified startup & maintenance automation
+├── tests/                    # 500+ automated unit, integration, and API test cases
+├── pyproject.toml            # Python package specification & dependencies
+├── package.json              # Frontend manifest & npm build scripts
+└── package-lock.json         # Pinned reproducible dependency lockfile
 ```
 
-### 3. Run Python Unit Test Suite
+---
+
+## ⚡ Quick Start & Development Setup
+
+### System Prerequisites
+- **Python**: `>= 3.10` (Python 3.11/3.12/3.14 verified)
+- **Node.js**: `>= 20.0` (Node.js 20/22/25 verified)
+- **npm**: `>= 10.0`
+
+### 1. Installation
+
+#### Backend Dependencies (Python)
 ```bash
-python -m unittest discover tests
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\Activate.ps1
+
+# Install locked production and test dependencies
+pip install -r backend/requirements.txt
 ```
 
-### 4. Run Python Backend Server (Optional)
+#### Frontend Dependencies (Node.js)
 ```bash
-python backend/app.py
+# Clean reproducible dependency install via package-lock.json
+npm ci
 ```
-Backend API will start on `http://localhost:5000`.
+
+---
+
+### 2. Running Locally
+
+#### Option A: Unified Dev Launcher (Recommended)
+**On Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/dev.ps1
+```
+
+**On Linux / macOS (Bash):**
+```bash
+chmod +x scripts/dev.sh
+./scripts/dev.sh
+```
+
+#### Option B: Individual Service Launchers
+**Terminal 1 — Backend API:**
+```bash
+python -m backend.app
+# Listening on http://127.0.0.1:5000
+```
+
+**Terminal 2 — Frontend Dev Server (Vite):**
+```bash
+npm run dev
+# Accessible on http://127.0.0.1:5173
+```
+
+---
+
+## 🧪 Automated Testing & Quality Verification
+
+Run the full automated test suite spanning unit algorithms, integration endpoints, and frontend assertions:
+
+```bash
+# 1. Run Comprehensive 500+ Algorithmic & Security Test Suite
+python tests/comprehensive_suite.py
+
+# 2. Run Authentication & User Session Suite
+python -m unittest tests/auth/test_auth_system.py
+
+# 3. Run API v1 REST Endpoint Integration Tests
+python tests/api/test_modular_api.py
+
+# 4. Run Repository Data Access Tests
+python tests/unit/test_repositories.py
+
+# 5. Run Frontend Test Runner
+npm test
+
+# 6. Build Production Frontend Bundle
+npm run build
+```
+
+---
+
+## 🚀 Key Platform Capabilities
+
+1. **Human-Made Developer UI**: Designed around information density, monospaced typography (`JetBrains Mono`, `Inter`), crisp 1px borders, and dark zinc themes without artificial glowing cards or neon glassmorphism.
+2. **Dedicated Auth Lifecycle**: Real SQLite database persistence with PBKDF2-HMAC-SHA256 (100,000 rounds) password hashing, JWT access and refresh tokens, real-time password strength meter, email verification, password reset, and brute-force lockout protection.
+3. **Route Guards & Session Isolation**: Frontend SPA navigation guards protecting private routes (`/dashboard`, `/ide`, `/problems`, `/contests`, `/history`, `/settings`, `/admin`) and strict user data isolation on executions and history.
+4. **3-Column IDE Workspace**: File explorer tree, tabbed code editor with line numbers, Pilot AI analysis dock, and resizable bottom console for stdin input, stdout output, and terminal.
+5. **Multi-Language Sandbox**: Process isolation with memory limits, execution timeouts, and native runtime detection (Python, C, C++, Java, JavaScript, Go, Rust).
+6. **Competitive Problem Judge**: Multi-case submission pipeline evaluating public and hidden test cases, returning Accepted, Wrong Answer, Compilation Error, and Time Limit Exceeded verdicts.
+7. **Real User History**: Fully persistent chronological activity log surviving page refreshes and server restarts with pagination and filter options.
+
+---
+
+## 📄 License & Contributing
+Licensed under the [MIT License](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+

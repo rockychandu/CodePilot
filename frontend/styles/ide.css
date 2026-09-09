@@ -1,4 +1,4 @@
-/* IDE & Terminal Specialized Styles */
+/* CodePilot Professional IDE & Terminal Styling */
 
 .ide-workspace {
   display: flex;
@@ -8,22 +8,37 @@
   overflow: hidden;
 }
 
+/* IDE Top Header / Toolbar */
 .ide-toolbar {
-  height: 42px;
+  height: 38px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-3);
+  font-size: var(--fs-xs);
 }
 
 .ide-toolbar-left, .ide-toolbar-right {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
+.ide-breadcrumb {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ide-breadcrumb span.active-file {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 3-Column Main Container */
 .ide-main-container {
   display: flex;
   flex: 1;
@@ -31,10 +46,11 @@
   position: relative;
 }
 
-/* File Explorer Sidebar */
+/* Left Column: File Explorer */
 .ide-sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-surface);
+  width: 220px;
+  min-width: 180px;
+  background: var(--bg-darkest);
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
@@ -42,11 +58,11 @@
 }
 
 .ide-sidebar-header {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--fs-xs);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-2xs);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -57,16 +73,16 @@
 .file-tree {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-2) 0;
+  padding: var(--space-1) 0;
   list-style: none;
 }
 
 .file-item {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-4);
-  font-size: var(--fs-sm);
+  gap: var(--space-15);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-xs);
   color: var(--text-secondary);
   cursor: pointer;
   border-left: 2px solid transparent;
@@ -79,18 +95,18 @@
 }
 
 .file-item.active {
-  background: var(--bg-surface-hover);
-  color: var(--accent-cyan);
-  border-left-color: var(--accent-cyan);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-left-color: var(--accent-primary);
   font-weight: 600;
 }
 
-/* Editor Center Area */
+/* Center Column: Editor Area */
 .ide-editor-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-darkest);
+  background: var(--bg-code);
   overflow: hidden;
 }
 
@@ -99,33 +115,36 @@
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
+  height: 32px;
 }
 
 .editor-tab {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--fs-sm);
+  gap: var(--space-15);
+  padding: 0 var(--space-3);
+  font-size: var(--fs-xs);
   font-family: var(--font-mono);
   color: var(--text-muted);
   background: var(--bg-darkest);
   border-right: 1px solid var(--border-subtle);
   cursor: pointer;
   user-select: none;
+  height: 100%;
 }
 
 .editor-tab.active {
   color: var(--text-primary);
-  background: var(--bg-surface);
-  border-top: 2px solid var(--accent-cyan);
+  background: var(--bg-code);
+  border-top: 2px solid var(--accent-primary);
+  font-weight: 500;
 }
 
 .editor-tab .close-btn {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
-  border-radius: var(--radius-sm);
-  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+  padding: 0 3px;
 }
 
 .editor-tab .close-btn:hover {
@@ -133,59 +152,118 @@
   color: var(--text-primary);
 }
 
-/* Code Mirror / Monaco Mock Canvas Area */
 .code-editor-wrapper {
   flex: 1;
   display: flex;
   position: relative;
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
-  line-height: 1.6;
-  background: var(--bg-darkest);
+  line-height: 1.55;
+  background: var(--bg-code);
   overflow: auto;
 }
 
 .line-numbers {
-  padding: var(--space-3) var(--space-3);
+  padding: var(--space-2) var(--space-2);
+  min-width: 44px;
   text-align: right;
-  color: var(--text-muted);
+  color: var(--text-disabled);
   user-select: none;
-  background: rgba(3, 7, 18, 0.4);
+  background: var(--bg-darkest);
   border-right: 1px solid var(--border-subtle);
-  font-size: 0.825rem;
+  font-size: var(--fs-xs);
 }
 
 .code-textarea {
   flex: 1;
-  padding: var(--space-3);
+  padding: var(--space-2);
   background: transparent;
-  color: #E2E8F0;
+  color: var(--text-primary);
   resize: none;
   border: none;
   outline: none;
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
-  line-height: 1.6;
+  line-height: 1.55;
   white-space: pre;
   tab-size: 4;
 }
 
-.editor-minimap {
-  width: 90px;
-  background: rgba(17, 24, 39, 0.5);
-  border-left: 1px solid var(--border-subtle);
-  padding: var(--space-2);
-  font-size: 4px;
-  line-height: 5px;
+/* Editor Status Bar */
+.editor-status-bar {
+  height: 22px;
+  background: var(--bg-darkest);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-3);
+  font-size: var(--fs-2xs);
   color: var(--text-muted);
-  overflow: hidden;
-  user-select: none;
-  opacity: 0.7;
 }
 
-/* Bottom Console & Execution Panel */
+.editor-status-bar-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Right Column: Pilot AI Assistant Panel */
+.ide-ai-panel {
+  width: 320px;
+  min-width: 260px;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ide-ai-header {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-darkest);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ide-ai-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ai-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-15);
+}
+
+.ai-card-result {
+  background: var(--bg-darkest);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-25);
+  font-size: var(--fs-xs);
+}
+
+.ai-card-result-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+/* Bottom Console / Output / Terminal Dock */
 .ide-console-panel {
-  height: 240px;
+  height: 200px;
+  min-height: 140px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
@@ -193,103 +271,59 @@
 }
 
 .console-header {
-  height: 36px;
+  height: 30px;
   background: var(--bg-darkest);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-3);
+}
+
+.console-tabs {
+  display: flex;
+  gap: var(--space-1);
+  height: 100%;
+}
+
+.console-tab {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-25);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.console-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-primary);
 }
 
 .console-body {
   flex: 1;
-  padding: var(--space-4);
+  padding: var(--space-25) var(--space-3);
   font-family: var(--font-mono);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   overflow-y: auto;
-  background: #020617;
+  background: var(--bg-code);
+  color: var(--text-primary);
 }
 
 .output-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
+  gap: var(--space-1);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
   font-weight: 600;
-  font-size: var(--fs-xs);
+  font-size: var(--fs-2xs);
 }
 
-.status-accepted { background: rgba(16, 185, 129, 0.2); color: #34D399; }
-.status-running { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
-.status-error { background: rgba(239, 68, 68, 0.2); color: #F87171; }
-
-/* Interactive Terminal Emulator */
-.terminal-window {
-  background: #030712;
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  font-family: var(--font-mono);
-}
-
-.terminal-titlebar {
-  background: var(--bg-surface);
-  padding: var(--space-2) var(--space-4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.terminal-dots {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.terminal-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.dot-red { background: #EF4444; }
-.dot-yellow { background: #F59E0B; }
-.dot-green { background: #10B981; }
-
-.terminal-content {
-  padding: var(--space-4);
-  height: 400px;
-  overflow-y: auto;
-  color: #F3F4F6;
-  font-size: var(--fs-sm);
-  line-height: 1.6;
-}
-
-.terminal-line {
-  margin-bottom: var(--space-2);
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.terminal-prompt {
-  color: var(--accent-cyan);
-  font-weight: 700;
-  margin-right: var(--space-2);
-}
-
-.terminal-input-row {
-  display: flex;
-  align-items: center;
-}
-
-.terminal-input {
-  flex: 1;
-  background: transparent;
-  color: #F8FAFC;
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  border: none;
-  outline: none;
-}
+.status-accepted { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.status-running { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.status-error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }

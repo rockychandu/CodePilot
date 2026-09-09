@@ -4,7 +4,7 @@ Supports SQLite for zero-config development and PostgreSQL for enterprise produc
 """
 
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///codepilot.db")
@@ -29,9 +29,38 @@ Base.query = db_session.query_property()
 
 
 def init_db():
-    """Create all database tables."""
+    """Create all database tables and perform lightweight schema migrations."""
     from codepilot.db import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight SQLite column migrations for smooth upgrades
+    if DATABASE_URL.startswith("sqlite"):
+        with engine.connect() as conn:
+            try:
+                # Check users table columns
+                res = conn.execute(text("PRAGMA table_info(users);")).fetchall()
+                col_names = [r[1] for r in res]
+                if "last_login_at" not in col_names and "users" in [t[0] for t in conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';")).fetchall()]:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN last_login_at DATETIME;"))
+                    conn.commit()
+            except Exception:
+                pass
+
+
+from contextlib import contextmanager
+
+@contextmanager
+def get_db_session():
+    """Context manager for database sessions."""
+    db = SessionLocal()
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
 def get_db():

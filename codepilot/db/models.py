@@ -28,11 +28,13 @@ class User(Base):
     role = Column(String(32), default="USER", nullable=False)  # USER, MODERATOR, INSTRUCTOR, ADMIN
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
+    last_login_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
 
     # Relationships
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    settings = relationship("UserSettings", back_populates="user", uselist=False, cascade="all, delete-orphan")
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
     submissions = relationship("Submission", back_populates="user", cascade="all, delete-orphan")
     executions = relationship("CodeExecution", back_populates="user", cascade="all, delete-orphan")
@@ -50,10 +52,13 @@ class User(Base):
             "role": self.role,
             "isActive": self.is_active,
             "isVerified": self.is_verified,
+            "lastLoginAt": self.last_login_at.isoformat() if self.last_login_at else None,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
         }
         if self.profile:
             data["profile"] = self.profile.to_dict()
+        if self.settings and include_private:
+            data["settings"] = self.settings.to_dict()
         return data
 
 
@@ -768,3 +773,51 @@ class RuntimeConfig(Base):
             "memoryLimit": self.memory_limit_mb,
             "isEnabled": self.is_enabled,
         }
+
+
+class LoginAttempt(Base):
+    __tablename__ = "login_attempts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip_address = Column(String(64), nullable=False, index=True)
+    username_or_email = Column(String(128), nullable=False, index=True)
+    attempted_at = Column(DateTime, default=utc_now, nullable=False, index=True)
+    success = Column(Boolean, default=False, nullable=False)
+    failure_reason = Column(String(128), default="")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "ipAddress": self.ip_address,
+            "usernameOrEmail": self.username_or_email,
+            "attemptedAt": self.attempted_at.isoformat() if self.attempted_at else None,
+            "success": self.success,
+            "failureReason": self.failure_reason
+        }
+
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    theme = Column(String(32), default="dark")
+    email_notifications = Column(Boolean, default=True)
+    editor_font_size = Column(String(16), default="14px")
+    editor_tab_size = Column(Integer, default=4)
+    editor_keymap = Column(String(32), default="standard")
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+    user = relationship("User", back_populates="settings")
+
+    def to_dict(self):
+        return {
+            "userId": self.user_id,
+            "theme": self.theme,
+            "emailNotifications": self.email_notifications,
+            "editorFontSize": self.editor_font_size,
+            "editorTabSize": self.editor_tab_size,
+            "editorKeymap": self.editor_keymap,
+            "updatedAt": self.updated_at.isoformat() if self.updated_at else None
+        }
+

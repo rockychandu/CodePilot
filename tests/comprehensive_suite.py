@@ -4,8 +4,13 @@ Contains 500+ rigorous automated unit, data structure, algorithmic,
 security, and mathematical evaluation test cases.
 """
 
+import os
+import sys
 import unittest
 import hashlib
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from codepilot.utils.security import hash_password, verify_password, create_access_token, verify_token
 from codepilot.engine.execution_sandbox import ExecutionSandbox
 from codepilot.ai.pilot_ai_engine import PilotAIEngine
