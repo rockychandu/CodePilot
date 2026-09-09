@@ -473,7 +473,7 @@
           <div class="container">
             <div class="hero-content">
               <div class="hero-badge">⚡ 15 Multi-Language Online Compilers Supported</div>
-              <h1 class="hero-title">Build, Test, and Execute Code Instantly in Any Language.</h1>
+              <h1 class="hero-title">Write, compile, and run code instantly online.</h1>
               <p class="hero-subtitle">
                 Run Python, C, C++, Java, JavaScript, TypeScript, Go, Rust, PHP, Ruby, Bash, Kotlin, C#, R, and SQL in real time with custom standard input (stdin) support and accurate dynamic outputs.
               </p>
