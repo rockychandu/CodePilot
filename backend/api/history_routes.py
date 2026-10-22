@@ -26,7 +26,8 @@ def update_current_profile():
     success, updated = UserService.update_profile(uid, data)
     if not success:
         return jsonify({"error": updated}), 400
-    return jsonify(updated), 200
+    user_prof = UserService.get_profile_by_id(uid)
+    return jsonify(user_prof if user_prof else updated), 200
 
 @history_bp.route("/users/<username>", methods=["GET"])
 def get_user_public(username):
