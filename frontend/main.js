@@ -87,9 +87,8 @@ function initApp() {
   // Initialize Global Search Command Palette (Ctrl+K)
   const paletteHolder = document.getElementById('command-palette-holder');
   if (paletteHolder) {
-    const searchModal = new GlobalSearchComponent('command-palette-holder');
-    paletteHolder.innerHTML = searchModal.render();
-    searchModal.attachEvents();
+    paletteHolder.innerHTML = GlobalSearchComponent.render();
+    GlobalSearchComponent.attachEvents();
   }
 
   // Initialize Hash-based SPA Router

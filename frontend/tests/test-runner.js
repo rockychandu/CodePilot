@@ -5,13 +5,21 @@
 
 export async function runFrontendTests() {
   if (typeof window === 'undefined') {
+    const memory = {};
+    const storage = {
+      getItem: (k) => memory[k] || null,
+      setItem: (k, v) => { memory[k] = v; },
+      removeItem: (k) => { delete memory[k]; }
+    };
     globalThis.window = {
       location: { hostname: 'localhost', hash: '' },
-      localStorage: {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {}
-      }
+      localStorage: storage
+    };
+    globalThis.localStorage = storage;
+    globalThis.document = {
+      documentElement: { setAttribute: () => {} },
+      getElementById: () => null,
+      addEventListener: () => {}
     };
   }
   console.log("==========================================================");
@@ -87,6 +95,16 @@ export async function runFrontendTests() {
     assert(typeof ProjectService.exportProject === 'function', 'ProjectService.exportProject Available');
   } catch (e) {
     assert(false, `ProjectService Test Failed: ${e.message}`);
+  }
+
+  // 6. Developer Sidebar Component Verification
+  try {
+    const { SidebarComponent } = await import('../components/sidebar.js');
+    assert(typeof SidebarComponent.render === 'function', 'SidebarComponent.render Available');
+    const html = SidebarComponent.render();
+    assert(typeof html === 'string', 'SidebarComponent Returns Valid Markup');
+  } catch (e) {
+    assert(false, `SidebarComponent Test Failed: ${e.message}`);
   }
 
   console.log("----------------------------------------------------------");
