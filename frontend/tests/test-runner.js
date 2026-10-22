@@ -128,6 +128,20 @@ export async function runFrontendTests() {
     assert(false, `ExecutionService Test Failed: ${e.message}`);
   }
 
+  // 9. Contest & Course List Pages
+  try {
+    const { ContestListPage } = await import('../pages/contests/contest-list.js');
+    const { CourseListPage } = await import('../pages/learning/course-list.js');
+    assert(typeof ContestListPage.render === 'function', 'ContestListPage.render Available');
+    assert(typeof CourseListPage.render === 'function', 'CourseListPage.render Available');
+    const contestMarkup = await ContestListPage.render();
+    const courseMarkup = await CourseListPage.render();
+    assert(typeof contestMarkup === 'string', 'ContestListPage Returns Valid Markup');
+    assert(typeof courseMarkup === 'string', 'CourseListPage Returns Valid Markup');
+  } catch (e) {
+    assert(false, `Contest/Course Pages Test Failed: ${e.message}`);
+  }
+
   console.log("----------------------------------------------------------");
   console.log(`Results: ${passed}/${total} Passed (${((passed / total) * 100).toFixed(1)}%)`);
   return { passed, total, success: passed === total };
