@@ -37,4 +37,5 @@ def get_contest_leaderboard(contest_id):
 def get_global_leaderboard():
     btype = request.args.get("type", "GLOBAL")
     limit = min(100, int(request.args.get("limit", 50)))
-    return jsonify(LeaderboardService.get_leaderboard(btype, limit)), 200
+    data = LeaderboardService.get_leaderboard(btype, limit)
+    return jsonify(data.get("rankings", []) if isinstance(data, dict) else data), 200
