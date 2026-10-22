@@ -612,6 +612,8 @@ class Project(Base):
     files = relationship("ProjectFile", back_populates="project", cascade="all, delete-orphan")
 
     def to_dict(self, include_files=False):
+        files_list = self.files or []
+        total_size = sum(len(f.content.encode('utf-8')) for f in files_list if f.content)
         data = {
             "id": self.id,
             "userId": self.user_id,
@@ -621,10 +623,14 @@ class Project(Base):
             "isPublic": self.is_public,
             "createdAt": self.created_at.isoformat() if self.created_at else None,
             "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
-            "fileCount": len(self.files) if self.files else 0,
+            "fileCount": len(files_list),
+            "totalSizeBytes": total_size,
+            "totalSizeKb": round(total_size / 1024, 1) if total_size > 0 else 0.5,
+            "owner": self.user.username if self.user else "developer",
+            "status": "Active"
         }
         if include_files:
-            data["files"] = [f.to_dict() for f in self.files]
+            data["files"] = [f.to_dict() for f in files_list]
         return data
 
 
