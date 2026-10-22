@@ -142,6 +142,20 @@ export async function runFrontendTests() {
     assert(false, `Contest/Course Pages Test Failed: ${e.message}`);
   }
 
+  // 10. Profile, History, Dashboard & ProblemService
+  try {
+    const { ProblemService } = await import('../services/ProblemService.js');
+    const { ProfilePage } = await import('../pages/profile.js');
+    const { DashboardPage } = await import('../pages/dashboard.js');
+    const { HistoryPage } = await import('../pages/history.js');
+    assert(typeof ProblemService.getProblems === 'function', 'ProblemService.getProblems Available');
+    assert(typeof ProfilePage.render === 'function', 'ProfilePage.render Available');
+    assert(typeof DashboardPage.render === 'function', 'DashboardPage.render Available');
+    assert(typeof HistoryPage.render === 'function', 'HistoryPage.render Available');
+  } catch (e) {
+    assert(false, `Profile/Dashboard/History Test Failed: ${e.message}`);
+  }
+
   console.log("----------------------------------------------------------");
   console.log(`Results: ${passed}/${total} Passed (${((passed / total) * 100).toFixed(1)}%)`);
   return { passed, total, success: passed === total };

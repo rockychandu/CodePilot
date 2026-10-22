@@ -1,49 +1,100 @@
-/* Developer Profile Page Module */
+/* Professional Developer Profile Page Module */
 import { store } from '../state/store.js';
+import { AuthService } from '../services/AuthService.js';
+import { ProjectService } from '../services/ProjectService.js';
 
 export class ProfilePage {
   static async render({ params }) {
-    const user = store.get('currentUser') || {
-      name: 'Alex Developer',
-      username: params?.username || 'alex_dev',
-      email: 'alex.developer@codepilot.io',
-      rating: 1845,
-      solvedCount: 142,
-      xp: 4250,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      bio: 'Passionate Python & Algorithms Engineer building commercial open-source projects.'
-    };
+    const authUser = store.get('currentUser') || AuthService.getCurrentUser();
+    const profile = authUser?.profile || {};
+    const username = params?.username || authUser?.username || 'developer';
+    const displayName = profile.displayName || authUser?.displayName || username;
+
+    let userProjects = [];
+    try {
+      userProjects = await ProjectService.getProjects();
+    } catch (e) {
+      userProjects = [];
+    }
 
     return `
       <div class="page-wrapper">
-        <div class="card flex items-center gap-6" style="margin-bottom: var(--space-8);">
-          <img src="${user.avatar}" style="width: 96px; height: 96px; border-radius: 50%; border: 3px solid var(--accent-cyan);" />
-          <div style="flex: 1;">
-            <div class="flex items-center gap-3">
-              <h2>${user.name}</h2>
-              <span class="badge-tag badge-medium">Level ${user.level || 12}</span>
+        <div class="card" style="margin-bottom: var(--space-4);">
+          <div class="flex items-center gap-4">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent-primary); color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono);">
+              ${(username[0] || 'D').toUpperCase()}
             </div>
-            <p class="text-secondary" style="margin-top: 2px;">@${user.username} • ${user.email}</p>
-            <p class="text-muted" style="font-size: var(--fs-sm); margin-top: 8px;">${user.bio}</p>
+            <div style="flex: 1;">
+              <div class="flex items-center gap-2">
+                <h2 style="font-size: var(--fs-lg); font-weight: 700; color: var(--text-primary);">${displayName}</h2>
+                <span class="badge-tag badge-easy">${authUser?.role || 'DEVELOPER'}</span>
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">
+                @${username} ${authUser?.email ? `• ${authUser.email}` : ''}
+              </p>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">
+                ${profile.bio || 'Full-stack software engineer building on CodePilot cloud architecture.'}
+              </p>
+            </div>
+            <div>
+              <a href="#/settings" class="btn btn-secondary btn-sm">Edit Profile</a>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-6">
-          <div class="card">
-            <h4>Contest Rating</h4>
-            <div style="font-size: var(--fs-3xl); font-weight: 800; color: var(--accent-purple); margin-top: 8px;">${user.rating}</div>
-            <div class="text-muted" style="font-size: 11px;">Top 5% Globally</div>
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-label">Contest Rating</div>
+            <div class="metric-value">${profile.contestRating || 1200}</div>
+            <div class="metric-delta">Rank: ${profile.rankTitle || 'Novice Developer'}</div>
           </div>
-          <div class="card">
-            <h4>Problems Solved</h4>
-            <div style="font-size: var(--fs-3xl); font-weight: 800; color: var(--accent-cyan); margin-top: 8px;">${user.solvedCount}</div>
-            <div class="text-muted" style="font-size: 11px;">142 Python Submissions</div>
+          <div class="metric-card">
+            <div class="metric-label">Problems Solved</div>
+            <div class="metric-value">${profile.problemsSolved || 0}</div>
+            <div class="metric-delta">Verified Test Runs</div>
           </div>
-          <div class="card">
-            <h4>Total XP Earned</h4>
-            <div style="font-size: var(--fs-3xl); font-weight: 800; color: var(--accent-emerald); margin-top: 8px;">${user.xp} XP</div>
-            <div class="text-muted" style="font-size: 11px;">Next Level at 4500 XP</div>
+          <div class="metric-card">
+            <div class="metric-label">Workspaces</div>
+            <div class="metric-value">${userProjects.length}</div>
+            <div class="metric-delta">Active Projects</div>
           </div>
+          <div class="metric-card">
+            <div class="metric-label">Login Streak</div>
+            <div class="metric-value">${profile.streakDays || 1} Days</div>
+            <div class="metric-delta">Active</div>
+          </div>
+        </div>
+
+        <!-- Recent Workspaces by User -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">User Workspaces & Sandboxes</span>
+            <a href="#/projects" class="btn btn-primary btn-sm">+ New Project</a>
+          </div>
+
+          ${userProjects.length > 0 ? `
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${userProjects.map(p => `
+                <div style="background: var(--bg-darkest); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="badge-tag badge-easy">${(p.primaryLanguage || 'PYTHON').toUpperCase()}</span>
+                      <a href="#/ide?project=${p.id}" style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-primary); text-decoration: none;">${p.title}</a>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                      ${p.description || 'No description provided.'}
+                    </div>
+                  </div>
+                  <a href="#/ide?project=${p.id}" class="btn btn-secondary btn-sm">Open Workspace</a>
+                </div>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="empty-state" style="padding: 24px;">
+              <div class="empty-title">No projects yet</div>
+              <div class="empty-text">Create your first workspace to start writing code.</div>
+            </div>
+          `}
         </div>
       </div>
     `;
