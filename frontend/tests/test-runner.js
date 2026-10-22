@@ -4,6 +4,16 @@
  */
 
 export async function runFrontendTests() {
+  if (typeof window === 'undefined') {
+    globalThis.window = {
+      location: { hostname: 'localhost', hash: '' },
+      localStorage: {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {}
+      }
+    };
+  }
   console.log("==========================================================");
   console.log("   CodePilot Frontend Automated Test Runner               ");
   console.log("==========================================================");
@@ -65,6 +75,18 @@ export async function runFrontendTests() {
     assert(acceptedStatuses.includes('Accepted'), 'Verdict Mapping Assertion');
   } catch (e) {
     assert(false, `Verdict Mapping Failed: ${e.message}`);
+  }
+
+  // 5. Project Service API Client Methods Interface
+  try {
+    const { ProjectService } = await import('../services/ProjectService.js');
+    assert(typeof ProjectService.getProjects === 'function', 'ProjectService.getProjects Available');
+    assert(typeof ProjectService.createProject === 'function', 'ProjectService.createProject Available');
+    assert(typeof ProjectService.renameProject === 'function', 'ProjectService.renameProject Available');
+    assert(typeof ProjectService.duplicateProject === 'function', 'ProjectService.duplicateProject Available');
+    assert(typeof ProjectService.exportProject === 'function', 'ProjectService.exportProject Available');
+  } catch (e) {
+    assert(false, `ProjectService Test Failed: ${e.message}`);
   }
 
   console.log("----------------------------------------------------------");
