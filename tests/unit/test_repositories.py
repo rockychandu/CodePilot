@@ -45,5 +45,31 @@ class TestRepositories(unittest.TestCase):
         history = HistoryRepository.get_user_history(user_id=1, page=1, page_size=10)
         self.assertTrue(history["total"] > 0)
 
+    def test_project_repository_operations(self):
+        # Create
+        proj = ProjectRepository.create_project(user_id=1, title="Repo Test Project", description="Test desc", language="python", template="cli")
+        self.assertIsNotNone(proj)
+        self.assertEqual(proj["title"], "Repo Test Project")
+        pid = proj["id"]
+
+        # Rename
+        renamed = ProjectRepository.rename_project(pid, user_id=1, title="Renamed Project")
+        self.assertEqual(renamed["title"], "Renamed Project")
+
+        # Update file
+        self.assertTrue(ProjectRepository.update_file(pid, user_id=1, filename="test.py", content="print('hello')"))
+
+        # Duplicate
+        cloned = ProjectRepository.duplicate_project(pid, user_id=1)
+        self.assertIsNotNone(cloned)
+        self.assertIn("Copy", cloned["title"])
+
+        # Delete file
+        self.assertTrue(ProjectRepository.delete_file(pid, user_id=1, filename="test.py"))
+
+        # Delete projects
+        self.assertTrue(ProjectRepository.delete_project(pid, user_id=1))
+        self.assertTrue(ProjectRepository.delete_project(cloned["id"], user_id=1))
+
 if __name__ == "__main__":
     unittest.main()
