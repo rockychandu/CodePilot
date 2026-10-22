@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 from codepilot.db.connection import db_session, init_db
 from codepilot.db.models import (
     User, Profile, Problem, TestCase, Contest, Course, Module, Lesson,
-    Skill, UserSkill, RuntimeConfig, Notification
+    Skill, UserSkill, RuntimeConfig, Notification, Project, ProjectFile
 )
 from codepilot.utils.security import hash_password
 
@@ -268,6 +268,35 @@ def seed_database():
             order_index=1
         )
         db.add_all([l1, l2])
+
+    # 7. Seed Initial Projects for pilot_dev & admin
+    from backend.repositories.project_repository import ProjectRepository
+    dev_user = db.query(User).filter_by(username="pilot_dev").first()
+    if dev_user and not db.query(Project).filter_by(user_id=dev_user.id).first():
+        ProjectRepository.create_project(
+            user_id=dev_user.id,
+            title="codepilot-api",
+            description="Python & Flask REST microservice for cloud code compilation and telemetry.",
+            language="python",
+            template="web"
+        )
+        ProjectRepository.create_project(
+            user_id=dev_user.id,
+            title="algorithm-lab",
+            description="C++ competitive programming solution templates, graph routines, and segment trees.",
+            language="cpp",
+            template="algorithm"
+        )
+
+    admin_user = db.query(User).filter_by(username="admin").first()
+    if admin_user and not db.query(Project).filter_by(user_id=admin_user.id).first():
+        ProjectRepository.create_project(
+            user_id=admin_user.id,
+            title="kernel-runtime-monitor",
+            description="High-performance Go agent monitoring execution sandbox memory and CPU bounds.",
+            language="go",
+            template="cli"
+        )
 
     db.commit()
     db.close()
