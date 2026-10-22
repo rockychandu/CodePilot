@@ -119,6 +119,15 @@ export async function runFrontendTests() {
     assert(false, `Navbar/Footer Test Failed: ${e.message}`);
   }
 
+  // 8. Execution Service API Client
+  try {
+    const { ExecutionService } = await import('../services/ExecutionService.js');
+    assert(typeof ExecutionService.execute === 'function', 'ExecutionService.execute Available');
+    assert(typeof ExecutionService.run === 'function', 'ExecutionService.run Available');
+  } catch (e) {
+    assert(false, `ExecutionService Test Failed: ${e.message}`);
+  }
+
   console.log("----------------------------------------------------------");
   console.log(`Results: ${passed}/${total} Passed (${((passed / total) * 100).toFixed(1)}%)`);
   return { passed, total, success: passed === total };
