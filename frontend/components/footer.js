@@ -1,28 +1,42 @@
-/* Footer Component */
-
+/* Minimalist Developer Footer Component */
 export class FooterComponent {
   static render() {
-    return `
-      <footer style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle); padding: var(--space-8) var(--space-6); margin-top: auto;">
-        <div class="container flex justify-between items-center" style="flex-wrap: wrap; gap: var(--space-4);">
+    const isLanding = window.location.hash === '#/' || window.location.hash === '' || window.location.hash === '#/home';
+    if (!isLanding) {
+      return `
+        <footer class="app-footer-compact">
           <div class="flex items-center gap-3">
-            <img src="frontend/assets/logo.svg" style="width: 24px; height: 24px;" alt="Logo" />
-            <span style="font-weight: 700; font-size: var(--fs-sm);">CodePilot</span>
-            <span class="text-muted" style="font-size: var(--fs-xs);">© 2026 CodePilot. Code. Build. Compete.</span>
+            <span>CodePilot v2.1.0 (Production Engine)</span>
+            <span>•</span>
+            <span>All systems operational</span>
           </div>
-
-          <div class="flex items-center gap-6" style="font-size: var(--fs-xs); color: var(--text-secondary);">
-            <a href="#/languages">Languages Studio</a>
-            <a href="#/ide">Multi-Lang IDE</a>
-            <a href="#/problems">Problems</a>
-            <a href="#/contests">Contests</a>
-            <a href="#/terminal">Terminal</a>
-            <a href="#/admin">Admin Panel</a>
+          <div class="flex items-center gap-3">
+            <a href="#/diagnostics" style="color: var(--text-muted); text-decoration: none;">Runtimes</a>
+            <span>•</span>
+            <a href="#/settings" style="color: var(--text-muted); text-decoration: none;">Settings</a>
+            <span>•</span>
+            <a href="#/community" style="color: var(--text-muted); text-decoration: none;">Community</a>
           </div>
+        </footer>
+      `;
+    }
 
-          <div class="flex items-center gap-2" style="font-size: var(--fs-xs);">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--status-success); display: inline-block;"></span>
-            <span style="color: var(--text-secondary);">Multi-Language Engine: Active (Python, C, C++, Java, JS, R, SQL)</span>
+    return `
+      <footer style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle); padding: var(--space-8) var(--space-4); margin-top: auto;">
+        <div style="max-width: var(--max-content-width); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+          <div class="flex items-center gap-2">
+            <img src="frontend/assets/logo.svg" alt="CodePilot" style="width: 20px; height: 20px;" />
+            <span style="font-weight: 700; color: var(--text-primary); font-size: 14px;">CodePilot Developer Platform</span>
+          </div>
+          <div class="flex items-center gap-4" style="font-size: 12px; color: var(--text-secondary);">
+            <a href="#/dashboard" style="color: var(--text-secondary); text-decoration: none;">Dashboard</a>
+            <a href="#/ide" style="color: var(--text-secondary); text-decoration: none;">Cloud IDE</a>
+            <a href="#/problems" style="color: var(--text-secondary); text-decoration: none;">Problems</a>
+            <a href="#/contests" style="color: var(--text-secondary); text-decoration: none;">Contests</a>
+            <a href="#/projects" style="color: var(--text-secondary); text-decoration: none;">Projects</a>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">
+            © 2026 CodePilot. Proprietary & Confidential.
           </div>
         </div>
       </footer>

@@ -107,6 +107,18 @@ export async function runFrontendTests() {
     assert(false, `SidebarComponent Test Failed: ${e.message}`);
   }
 
+  // 7. Navbar & Footer Component Renders
+  try {
+    const { NavbarComponent } = await import('../components/navbar.js');
+    const { FooterComponent } = await import('../components/footer.js');
+    assert(typeof NavbarComponent.render === 'function', 'NavbarComponent.render Available');
+    assert(typeof FooterComponent.render === 'function', 'FooterComponent.render Available');
+    assert(typeof NavbarComponent.render() === 'string', 'NavbarComponent Returns Valid Markup');
+    assert(typeof FooterComponent.render() === 'string', 'FooterComponent Returns Valid Markup');
+  } catch (e) {
+    assert(false, `Navbar/Footer Test Failed: ${e.message}`);
+  }
+
   console.log("----------------------------------------------------------");
   console.log(`Results: ${passed}/${total} Passed (${((passed / total) * 100).toFixed(1)}%)`);
   return { passed, total, success: passed === total };
