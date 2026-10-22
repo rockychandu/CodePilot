@@ -1,15 +1,40 @@
-/* Professional Developer-First Dashboard Page Module */
+/* Professional Developer Dashboard Page */
 import { store } from '../state/store.js';
 import { AuthService } from '../services/AuthService.js';
+import { ProjectService } from '../services/ProjectService.js';
 import { ProblemService } from '../services/ProblemService.js';
-import { mockAnalytics } from '../mock-data/analytics.js';
+import { CourseService } from '../services/CourseService.js';
 
 export class DashboardPage {
   static async render() {
     const user = store.get('currentUser') || AuthService.getCurrentUser();
     const displayName = user?.profile?.displayName || user?.username || 'Developer';
-    const problems = await ProblemService.getAll();
+    const profile = user?.profile || {};
+
+    // Determine greeting
+    const hour = new Date().getHours();
+    let greeting = 'Good morning';
+    if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+    else if (hour >= 17) greeting = 'Good evening';
+
+    // Fetch real data in parallel
+    let projects = [];
+    let problems = [];
+    let courses = [];
+
+    try {
+      [projects, problems, courses] = await Promise.all([
+        ProjectService.getProjects().catch(() => []),
+        ProblemService.getAll().catch(() => []),
+        CourseService.getAll().catch(() => [])
+      ]);
+    } catch (e) {
+      console.warn('[DashboardPage] Non-critical fetch error:', e);
+    }
+
+    const recentProjects = (projects || []).slice(0, 3);
     const topProblems = (problems || []).slice(0, 4);
+    const recentCourses = (courses || []).slice(0, 2);
 
     return `
       <div class="page-wrapper">
@@ -17,188 +42,178 @@ export class DashboardPage {
         <div class="page-header">
           <div>
             <h1 class="page-title">
-              <span>Developer Workspace</span>
+              <span>${greeting}, ${displayName}</span>
             </h1>
-            <p class="page-description">Signed in as <strong>${displayName}</strong> (${user?.role || 'USER'}) | Local Workspace Connected</p>
+            <p class="page-description">Continue where you left off. Cloud execution engine & isolated runtimes online.</p>
           </div>
           <div class="flex items-center gap-2">
             <a href="#/ide" class="btn btn-primary">▶ Open Cloud IDE</a>
-            <a href="#/history" class="btn btn-secondary">📜 Activity Log</a>
+            <a href="#/projects" class="btn btn-secondary">📁 My Projects</a>
           </div>
         </div>
 
-        <!-- 4 Key Developer Metrics -->
+        <!-- Real Key Developer Metrics -->
         <div class="metrics-row">
           <div class="metric-card">
             <div class="metric-label">Problems Solved</div>
-            <div class="metric-value">${user?.profile?.problemsSolved || 14}</div>
-            <div class="metric-delta">Rank: ${user?.profile?.rankTitle || 'Novice Developer'}</div>
+            <div class="metric-value">${profile.problemsSolved ?? 0}</div>
+            <div class="metric-delta">Rank: ${profile.rankTitle || 'Novice Developer'}</div>
           </div>
 
           <div class="metric-card">
             <div class="metric-label">Contest Rating</div>
-            <div class="metric-value">${user?.profile?.contestRating || 1200}</div>
-            <div class="metric-delta">Division II Active</div>
+            <div class="metric-value">${profile.contestRating ?? 1200}</div>
+            <div class="metric-delta">Global Division II</div>
           </div>
 
           <div class="metric-card">
-            <div class="metric-label">Developer XP</div>
-            <div class="metric-value">${user?.profile?.xp || 350}</div>
-            <div class="metric-delta">Level ${user?.profile?.level || 1} Engineer</div>
+            <div class="metric-label">Active Workspaces</div>
+            <div class="metric-value">${projects.length}</div>
+            <div class="metric-delta">Persisted in SQLite</div>
           </div>
 
           <div class="metric-card">
             <div class="metric-label">Daily Streak</div>
-            <div class="metric-value">${user?.profile?.streakDays || 3} Days</div>
-            <div class="metric-delta">Active Today</div>
+            <div class="metric-value">${profile.streakDays ?? 0} Days</div>
+            <div class="metric-delta">Logged in today</div>
           </div>
         </div>
 
         <!-- 2-Column Main Developer Dashboard Layout -->
         <div class="dashboard-grid">
-          <!-- Left Main Column: Continue Coding & Activity Matrix -->
+          <!-- Left Column -->
           <div class="flex flex-col gap-4">
-            <!-- Continue Coding Card -->
+            <!-- Recent Projects & Workspaces -->
             <div class="card">
               <div class="card-header">
-                <span class="card-title">Recent Work & Continue Coding</span>
-                <span style="font-size: 11px; color: var(--text-muted);">Auto-Saved</span>
-              </div>
-              <div style="background: var(--bg-darkest); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--space-3); margin-bottom: var(--space-3);">
-                <div class="flex justify-between items-center" style="margin-bottom: var(--space-1);">
-                  <div class="flex items-center gap-2">
-                    <span style="font-family: var(--font-mono); font-weight: 600; color: var(--text-primary);">main.py</span>
-                    <span class="history-lang-badge">PYTHON 3</span>
-                  </div>
-                  <span style="font-size: 11px; color: var(--text-muted);">Edited 10m ago</span>
-                </div>
-                <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-                  def solve(): ... # Execution Engine & Multi-case Validator
-                </div>
+                <span class="card-title">Recent Workspaces</span>
+                <a href="#/projects" style="font-size: 11px; color: var(--accent-primary); text-decoration: none;">View All (${projects.length}) →</a>
               </div>
 
-              <div class="flex items-center gap-2">
-                <a href="#/ide?lang=python" class="btn btn-primary btn-sm">Resume Editing</a>
-                <a href="#/ide?lang=javascript" class="btn btn-secondary btn-sm">Switch to JS</a>
-                <a href="#/ide?lang=cpp" class="btn btn-secondary btn-sm">Switch to C++</a>
-              </div>
+              ${recentProjects.length > 0 ? `
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  ${recentProjects.map(p => `
+                    <div style="background: var(--bg-darkest); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <span class="badge-tag badge-easy">${(p.primaryLanguage || 'PYTHON').toUpperCase()}</span>
+                          <a href="#/ide?project=${p.id}" style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-primary); text-decoration: none;">${p.title}</a>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                          ${p.fileCount || 1} files • ${(p.totalSizeKb || 0.5)} KB
+                        </div>
+                      </div>
+                      <a href="#/ide?project=${p.id}" class="btn btn-secondary btn-sm">Resume</a>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : `
+                <div class="empty-state" style="padding: 24px 12px;">
+                  <div class="empty-title" style="font-size: 13px;">No projects yet</div>
+                  <div class="empty-text" style="font-size: 11px;">Create your first workspace to start writing multi-file applications.</div>
+                  <a href="#/projects" class="btn btn-primary btn-sm">+ Create Workspace</a>
+                </div>
+              `}
             </div>
 
-            <!-- 365-Day Activity Heatmap -->
+            <!-- Recommended CP Problems -->
             <div class="card">
               <div class="card-header">
-                <span class="card-title">Coding Activity Streak</span>
-                <span style="font-size: 11px; color: var(--text-muted);">Year 2026</span>
+                <span class="card-title">Algorithmic Problem Challenges</span>
+                <a href="#/problems" style="font-size: 11px; color: var(--accent-primary); text-decoration: none;">Browse Catalog →</a>
               </div>
-              <div class="heatmap-container">
-                ${mockAnalytics.heatmapData.map(d => {
-                  let levelClass = '';
-                  if (d.count > 6) levelClass = 'heatmap-level-4';
-                  else if (d.count > 3) levelClass = 'heatmap-level-3';
-                  else if (d.count > 1) levelClass = 'heatmap-level-2';
-                  else if (d.count > 0) levelClass = 'heatmap-level-1';
-                  return `<div class="heatmap-cell ${levelClass}" title="Day ${d.day}: ${d.count} commits/submissions"></div>`;
-                }).join('')}
-              </div>
-            </div>
 
-            <!-- Recent Submissions Table -->
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Recent Submissions</span>
-                <a href="#/history?type=SUBMISSION" style="font-size: 11px; color: var(--accent-primary);">View All</a>
-              </div>
-              <div class="table-container">
-                <table class="data-table">
+              <div class="cp-table-container">
+                <table class="cp-table">
                   <thead>
                     <tr>
-                      <th>Time</th>
                       <th>Problem</th>
-                      <th>Language</th>
-                      <th>Status</th>
-                      <th>Runtime</th>
+                      <th>Category</th>
+                      <th>Difficulty</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">14:32</td>
-                      <td style="font-weight: 500;">Two Sum</td>
-                      <td><span class="history-lang-badge">PYTHON</span></td>
-                      <td><span class="output-status-pill status-accepted">Accepted</span></td>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">42 ms</td>
-                    </tr>
-                    <tr>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">13:50</td>
-                      <td style="font-weight: 500;">LRU Cache</td>
-                      <td><span class="history-lang-badge">CPP</span></td>
-                      <td><span class="output-status-pill status-accepted">Accepted</span></td>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">18 ms</td>
-                    </tr>
-                    <tr>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">12:15</td>
-                      <td style="font-weight: 500;">Valid Palindrome</td>
-                      <td><span class="history-lang-badge">JAVA</span></td>
-                      <td><span class="output-status-pill status-accepted">Accepted</span></td>
-                      <td style="font-family: var(--font-mono); font-size: 11px;">65 ms</td>
-                    </tr>
+                    ${topProblems.map(prob => {
+                      let diffBadge = 'badge-easy';
+                      if (prob.difficulty === 'Medium') diffBadge = 'badge-medium';
+                      if (prob.difficulty === 'Hard') diffBadge = 'badge-hard';
+
+                      return `
+                        <tr>
+                          <td>
+                            <a href="#/problems/${prob.id || prob.slug}" style="color: var(--text-primary); font-weight: 500; text-decoration: none;">
+                              ${prob.title}
+                            </a>
+                          </td>
+                          <td style="color: var(--text-secondary);">${prob.category || 'Algorithms'}</td>
+                          <td><span class="badge-tag ${diffBadge}">${prob.difficulty}</span></td>
+                          <td>
+                            <a href="#/problems/${prob.id || prob.slug}" class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 2px 6px;">Solve</a>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Problems to Solve & Upcoming Contests -->
+          <!-- Right Column -->
           <div class="flex flex-col gap-4">
-            <!-- Active Contest Card -->
-            <div class="card" style="border-left: 3px solid var(--accent-primary);">
+            <!-- Active Arena Contest -->
+            <div class="card">
               <div class="card-header">
-                <span class="card-title">Current & Upcoming Contest</span>
-                <span class="output-status-pill status-running">Upcoming</span>
+                <span class="card-title">Live Algorithmic Arena</span>
+                <span class="badge-tag badge-live">LIVE</span>
               </div>
-              <h4 style="font-size: var(--fs-base); margin-bottom: var(--space-1);">CodePilot Bi-Weekly Cup #42</h4>
-              <p style="font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--space-3);">
-                4 Algorithmic Problems | 90 Minutes | Penalty 10 min
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                CodePilot Biweekly Arena #42
+              </div>
+              <p style="font-size: 11px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 12px;">
+                4 algorithmic challenges in 90 minutes. Global leaderboard and rating changes active.
               </p>
-              <div class="flex justify-between items-center">
-                <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);">Starts in 4h 15m</span>
-                <a href="#/contests" class="btn btn-primary btn-sm">Register Now</a>
+              <div class="flex items-center justify-between">
+                <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Ends in 5d 14h</span>
+                <a href="#/contests" class="btn btn-primary btn-sm">Enter Arena</a>
               </div>
             </div>
 
-            <!-- Problems To Solve -->
+            <!-- Learning Curriculum Progress -->
             <div class="card">
               <div class="card-header">
-                <span class="card-title">Problems To Solve</span>
-                <a href="#/problems" style="font-size: 11px; color: var(--accent-primary);">Browse All</a>
+                <span class="card-title">Continue Learning</span>
+                <a href="#/learning" style="font-size: 11px; color: var(--accent-primary); text-decoration: none;">All Courses →</a>
               </div>
-              <div class="flex flex-col gap-2">
-                ${topProblems.map(p => `
-                  <div class="flex justify-between items-center" style="padding: var(--space-2) var(--space-3); background: var(--bg-darkest); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
-                    <div>
-                      <a href="#/problems/${p.id || p.slug}" style="font-weight: 500; font-size: var(--fs-xs); color: var(--text-primary);">${p.title}</a>
-                      <div style="font-size: 10px; color: var(--text-muted);">${p.category || 'Algorithms'}</div>
-                    </div>
-                    <span class="badge-tag badge-${(p.difficulty || 'Easy').toLowerCase()}">${p.difficulty || 'Easy'}</span>
+
+              ${recentCourses.map(course => `
+                <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">
+                    ${course.title}
                   </div>
-                `).join('')}
-              </div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+                    ${course.category} • ${course.difficulty}
+                  </div>
+                  <div style="background: var(--bg-darkest); height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 6px;">
+                    <div style="background: var(--accent-emerald); width: 35%; height: 100%;"></div>
+                  </div>
+                  <div class="flex justify-between items-center" style="font-size: 10px; color: var(--text-muted);">
+                    <span>35% completed</span>
+                    <a href="#/courses/${course.slug}" style="color: var(--accent-primary); text-decoration: none;">Resume →</a>
+                  </div>
+                </div>
+              `).join('')}
             </div>
 
-            <!-- Learning Platform Progress -->
+            <!-- System Diagnostics Quick Link -->
             <div class="card">
-              <div class="card-header">
-                <span class="card-title">Learning Progress</span>
-                <a href="#/courses" style="font-size: 11px; color: var(--accent-primary);">Academy</a>
-              </div>
-              <div>
-                <div class="flex justify-between items-center" style="font-size: var(--fs-xs); margin-bottom: var(--space-1);">
-                  <span>Algorithms & Data Structures</span>
-                  <span style="font-family: var(--font-mono); color: var(--accent-primary);">65%</span>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Host Runtime Diagnostics</div>
+                  <div style="font-size: 11px; color: var(--text-muted);">Python, GCC, Clang, OpenJDK, Rust, Go</div>
                 </div>
-                <div style="height: 6px; background: var(--bg-darkest); border-radius: var(--radius-full); overflow: hidden; margin-bottom: var(--space-3);">
-                  <div style="width: 65%; height: 100%; background: var(--accent-primary); border-radius: var(--radius-full);"></div>
-                </div>
-                <a href="#/courses" class="btn btn-secondary btn-sm w-full">Continue Next Lesson</a>
+                <a href="#/diagnostics" class="btn btn-secondary btn-sm">Status</a>
               </div>
             </div>
           </div>
